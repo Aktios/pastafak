@@ -2,10 +2,12 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 import boto3
 import uuid
-from botocore.exceptions import NoCredentialsError
+from botocore.client import Config
 
 app = Flask(__name__)
-s3 = boto3.client('s3')
+
+# En Config, proporcionar signature_version como 's3v4' para usar 'AWS4-HMAC-SHA256' 
+s3 = boto3.client('s3', config=Config(signature_version='s3v4'))
 
 @app.route('/')
 def index():
@@ -34,6 +36,7 @@ def upload_file_to_s3():
         return "No file or text input provided."
     
     # Generate a presigned URL for the S3 object
+    
     url = s3.generate_presigned_url('get_object', 
                                     {'Bucket': bucket_name, 'Key': object_name}, 
                                     ExpiresIn = 900)
