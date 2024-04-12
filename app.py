@@ -3,80 +3,53 @@ from flask import Flask, render_template, request, redirect, url_for
 import boto3
 import uuid
 from botocore.client import Config
+import requests
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
 
 app = Flask(__name__)
 
-# En Config, proporcionar signature_version como 's3v4' para usar 'AWS4-HMAC-SHA256' 
-region_name = 'eu-central-1'
-s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region_name)
+def encrypt_text(text, password):
+    data = text.encode('utf-8')
+    key = password.rjust(32, '0').encode()
+    cipher = AES.new(key, AES.MODE_CBC)
+    ct_bytes = cipher.encrypt(pad(data, AES.block_size))
+    return cipher.iv + ct_bytes
 
+def create_presigned_post(s3, bucket_name, object_name, expiration=3600):
+    response = s3.generate_presigned_post(Bucket=bucket_name, 
+                                          Key=object_name,
+                                          Fields={"Content-Type": "application/octet-stream"},
+                                          Conditions=[
+                                              {"Content-Type": "application/octet-stream"}
+                                          ],
+                                          ExpiresIn=expiration)
+    return response
+  
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
-
-import uuid
-
 @app.route('/', methods=['POST'])
-def upload_file_to_s3():
-    file = request.files['file']
+def upload_text_to_s3():
+    region_name = 'eu-central-1'
+    s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region_name)
+    bucket_name = 'stacksets-test'
+
     text_input = request.form['text_input']
+    password = request.form['password']
+    object_name = str(uuid.uuid4())
+    encrypted_text = encrypt_text(text_input, password)
 
-    bucket_name = os.environ.get('BUCKET_NAME')
-    
-    if text_input:
-        # Generate a random file name for text inputs
-        object_name = str(uuid.uuid4())
-        s3.put_object(Body=text_input, Bucket=bucket_name, Key=object_name)
-    elif file:
-        # Keep original filename for file uploads
-        object_name = file.filename
-        s3.upload_fileobj(file, bucket_name, object_name)
-    else:
-        return "No file or text input provided."
-    
-    # Generate a presigned URL for the S3 object
-    
-    url = s3.generate_presigned_url('get_object', 
-                                    {'Bucket': bucket_name, 'Key': object_name}, 
-                                    ExpiresIn = 900)
+    presigned_post = create_presigned_post(s3, bucket_name, object_name, 900)
 
-    # Build the response
-    response = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download File</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <h1 class="my-4">Download Secret</h1>
+    files = {"file": (object_name, encrypted_text)}
 
-        <input id="url" type="text" value='""" + url + """' class="form-control" readonly>
+    response = requests.post(presigned_post['url'], data=presigned_post['fields'], files=files)
 
-        <button onclick="copyToClipboard()" class="btn btn-primary my-4">Copy to Clipboard</button>
-        
-        <a href="/" class="btn btn-secondary my-4">Clear</a>
-
-        <script>
-        function copyToClipboard() {
-            var $temp = document.querySelector("#url");
-            $temp.select();
-            document.execCommand("copy");
-        }
-        </script>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>"""
-
-    return response
+    object_url = f"{presigned_post['url']}/{object_name}"
+  
+    return object_url, 200
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

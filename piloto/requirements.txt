@@ -1,0 +1,8 @@
+Flask==1.1.4
+Jinja2<3.0.0
+MarkupSafe<2.0.0
+boto3==1.18.33
+cryptography==3.4.7
+requests==2.26.0
+botocore==1.21.33
+uuid==1.30
