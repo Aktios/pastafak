@@ -12,7 +12,7 @@ RUN useradd --create-home appuser
 USER appuser
 
 # Install Flask and Boto3
-RUN pip install --no-cache-dir flask boto3
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 5000 available to the world outside this container
 EXPOSE 5000
