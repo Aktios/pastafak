@@ -7,7 +7,8 @@ from botocore.client import Config
 app = Flask(__name__)
 
 # En Config, proporcionar signature_version como 's3v4' para usar 'AWS4-HMAC-SHA256' 
-s3 = boto3.client('s3', config=Config(signature_version='s3v4'))
+region_name = 'eu-central-1'
+s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region_name)
 
 @app.route('/')
 def index():
