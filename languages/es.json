@@ -1,0 +1,7 @@
+{
+    "headerTitle": "SecurePaste",
+    "headerSubtitle": "Comparte tus secretos de forma segura",
+    "enterSecret": "Ingresa el Secreto y la Contraseña de Encriptación",
+    "instructions": "Una vez que encriptas un secreto, obtendrás un enlace compartible. El secreto solo puede ser recuperado dentro de los próximos 15 minutos.",
+    "aboutPrivacy": "Nuestro servicio utiliza encriptación de alta calidad. Cuando encriptas un mensaje, este es convertido a una versión ilegible que solo puede ser revertida si encuentras la clave correcta. Por favor, ten cuidado con la contraseña que eliges, ya que es necesaria para desencriptar el mensaje. No podrás recuperar tu mensaje si olvidas la contraseña. Utilizamos PBKDF2 con SHA256, un algoritmo de derivación de clave segura que proporciona un alto grado de resistencia contra ataques de fuerza bruta. Además, usamos un esquema de encriptación simétrica (Fernet) con una firma para verificar que los datos no han sido manipulados durante su tránsito."
+  }

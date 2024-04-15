@@ -3,48 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pastafak - Tu Pasta de Texto Segura</title>
+    <title>SecurePaste - Your Secure Text Paste</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .dark-mode {
+            background-color: #242424;
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <header style="text-align:center; margin-top:20px;">
-        <h1>Pastafak</h1>
-        <p>Comparte tus secretos de manera segura</p>
-    </header>
 
-    <h2 class="my-4">Ingresar Secreto y contraseña de cifrado</h2>
-    <div class="mt-4">
-        <h4>Instrucciones:</h4>
-        <p>
-         Una vez cifrado un secreto obtendrás un enlace para compartir. La recuperación del secreto solo se puede realizar en los siguientes 15 minutos.
-        </p>
-    </div>
+    <div class="container">
+        <header style="text-align:center; margin-top:20px;">
+            <h1>SecurePaste</h1>
+            <p id="headerSubtitle">Share your secrets securely</p>
+        </header>
+
+        <h2 class="my-4" id="enterSecret">Enter Secret and Encryption Password</h2>
+        <div class="mt-4">
+            <h4>Instructions:</h4>
+            <p id="instructions">Once you encrypt a secret you will get a shareable link. The secret can only be retrieved within the next 15 minutes.</p>
+        </div>
     <form action="/" method="POST">
         <div class="form-group">
-            <label for="text_input">Secreto</label>
-            <textarea class="form-control" name="text_input" id="text_input" rows="4" placeholder="Ingresar secretos aquí"></textarea>
+            <label for="text_input">Secret</label>
+            <textarea class="form-control" name="text_input" id="text_input" rows="4" placeholder="Enter your secret here"></textarea>
         </div>
         <div class="form-group" style="max-width: 300px;">
-            <label for="password">Contraseña</label>
-            <input type="password" class="form-control" name="password" id="password" placeholder="Ingresar contraseña aquí" maxlength="32">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" id="password" placeholder="Enter your password here" maxlength="32">
         </div>
-        <button type="submit" class="btn btn-primary">Cifrar y Subir</button>
+        <button type="submit" class="btn btn-primary">Encrypt and Upload</button>
     </form>
   
     <div class="mt-4">
-        <h4>Nota de seguridad:</h4>
-        <p>
-        Nuestro servicio utiliza un cifrado de alta seguridad. Cuando cifras un mensaje, se convierte en una versión ilegible que sólo puede ser revertida si tienes la clave correcta. Por favor, ten cuidado con la contraseña que eliges, ya que es necesaria para descifrar el mensaje. No podrás recuperar tu mensaje si olvidas la contraseña. Usamos PBKDF2 con SHA256, un algoritmo de derivación de clave seguro que proporciona un alto grado de resistencia contra ataques de fuerza bruta. Además, utilizamos un esquema de cifrado simétrico (Fernet) con una firma para verificar que los datos no hayan sido alterados en tránsito.
-        </p>
+        <a href="/get" class="btn btn-secondary">Decrypt existing link</a>
     </div>
 
     <div class="mt-4">
-        <a href="/get" class="btn btn-secondary">Descifrar enlace existente</a>
-    </div>
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            About Security
+        </button>
+        <a href="https://github.com/Aktios/securepaste" class="btn btn-link">GitHub</a>
+        <div class="dropdown">
+            <button class="btn btn-link dropdown-toggle" type="button" id="darkmodeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Modo oscuro
+            </button>
+            <div class="dropdown-menu" aria-labelledby="darkmodeDropdown">
+            <a class="dropdown-item mode-item" href="#">Cambiar Modo</a>
+            </div>
+            </div>
+            <div class="dropdown">
+                <button class="btn btn-link dropdown-toggle" type="button" id="langDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Idioma
+                </button>
+                <div class="dropdown-menu" aria-labelledby="langDropdown">
+                <a class="dropdown-item lang-item" href="#" data-lang="en">Inglés</a>
+                <a class="dropdown-item lang-item" href="#" data-lang="es">Español</a>
+                <a class="dropdown-item lang-item" href="#" data-lang="ca">Catalán</a>
+                </div>
+            </div>
+        </div>
+        <div class="collapse" id="collapseExample">
+            <div class="card card-body">
+                <p id="aboutPrivacy"> Our service uses high-grade encryption. When you encrypt a message, it is converted into an unreadable version that can only be reversed if you have the correct key. Please take care with the password you choose, as it is required to decrypt the message. You will not be able to recover your message if you forget the password. We use PBKDF2 with SHA256, a secure key derivation algorithm that provides a high degree of resistance against brute-force attacks. Additionally, we use a symmetric encryption scheme (Fernet) with a signature to verify that the data has not been tampered with in transit.</p>
+            </div>
+        </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
+<script>
+    $(document).ready(function() {
+      // Modo oscuro
+      $("#darkmodeDropdown").click(function() {
+        $("body").toggleClass("dark-mode");
+      });
+    
+  // Idioma
+  $(".lang-item").click(function(event) {
+    event.preventDefault();  // prevents the default action
+    var lang = $(this).data('lang');
+
+    // Fetch JSON according to selected language
+    fetch(`../languages/${lang}.json`)
+      .then(response => response.json())
+      .then(data => {
+        document.querySelector("#headerSubtitle").textContent = data.headerSubtitle;
+        document.querySelector("#enterSecret").textContent = data.enterSecret;
+        document.querySelector("#instructions").textContent = data.instructions;
+        document.querySelector("#aboutPrivacy").textContent = data.aboutPrivacy;
+      })
+      .catch(console.error);
+  });
+});
+    </script>
+    
+    </body>
+    </html>

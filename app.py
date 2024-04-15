@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 import boto3
 import uuid
 from botocore.client import Config
@@ -29,6 +29,11 @@ def generate_key(password: str, salt=None):
     )
     key = base64.urlsafe_b64encode(kdf.derive(password))
     return salt, key
+
+@app.route('/languages/<path:filename>', methods=['GET'])
+def languages(filename):
+    return send_from_directory('languages', filename)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_text_to_s3():

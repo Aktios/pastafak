@@ -1,0 +1,7 @@
+{
+    "headerTitle": "SecurePaste",
+    "headerSubtitle": "Comparteix els teus secrets de manera segura",
+    "enterSecret": "Introdueix el Secret i la Contrasenya d'Encriptació",
+    "instructions": "Una vegada que encriptes un secret, obtindràs un enllaç compartible. El secret només pot ser recuperat dins els propers 15 minuts.",
+    "aboutPrivacy": "El nostre servei utilitza encriptació d'alta qualitat. Quan encriptes un missatge, aquest es converteix a una versió il·legible que només pot ser revertida si trobes la clau correcta. Si us plau, tingues cura amb la contrasenya que tries, ja que és necessària per desencriptar el missatge. No podràs recuperar el teu missatge si oblides la contrasenya. Utilitzem PBKDF2 amb SHA256, un algoritme de derivació de clau segura que proporciona un alt grau de resistència contra atacs de força bruta. A més, usem un esquema d'encriptació simètrica (Fernet) amb una signatura per verificar que les dades no han estat manipulades durant el seu trànsit."
+  }
